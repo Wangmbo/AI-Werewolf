@@ -1,0 +1,22 @@
+{
+  "server": {
+    "port": 3006,
+    "host": "0.0.0.0"
+  },
+  "ai": {
+    "model": "deepseek-chat",
+    "maxTokens": 150,
+    "temperature": 0.8,
+    "provider": "deepseek"
+  },
+  "game": {
+    "name": "深度思考者",
+    "personality": "深度分析型玩家，善于多层次思考，能从细微线索中发现重要信息",
+    "strategy": "balanced",
+    "speakingStyle": "casual"
+  },
+  "logging": {
+    "level": "info",
+    "enabled": true
+  }
+} 

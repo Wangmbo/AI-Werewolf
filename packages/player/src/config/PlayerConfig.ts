@@ -11,7 +11,7 @@ export interface PlayerConfig {
     model: string;
     maxTokens: number;
     temperature: number;
-    provider: 'openrouter' | 'openai';
+    provider: 'openrouter' | 'openai' | 'deepseek';
     apiKey?: string;
   };
   game: {
@@ -115,6 +115,9 @@ export class ConfigLoader {
     } else if (process.env.OPENAI_API_KEY) {
       config.ai.provider = 'openai';
       config.ai.apiKey = process.env.OPENAI_API_KEY;
+    } else if (process.env.DEEPSEEK_API_KEY) {
+      config.ai.provider = 'deepseek';
+      config.ai.apiKey = process.env.DEEPSEEK_API_KEY;
     }
 
     // 游戏配置
@@ -159,8 +162,8 @@ export class ConfigLoader {
       console.warn('⚠️ 未配置AI API密钥，将使用预设回复');
     }
 
-    if (config.ai.maxTokens < 10 || config.ai.maxTokens > 10000) {
-      console.error('❌ maxTokens应在10-2000之间:', config.ai.maxTokens);
+    if (config.ai.maxTokens < 10 || config.ai.maxTokens > 15000) {
+      console.error('❌ maxTokens应在10-15000之间:', config.ai.maxTokens);
       return false;
     }
 

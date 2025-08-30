@@ -23,10 +23,11 @@ node dist/index.js --config=configs/default.json
 
 ### 可用的预设配置
 
-- `configs/default.json` - 默认平衡型玩家
-- `configs/aggressive.json` - 激进攻击型玩家  
-- `configs/conservative.json` - 保守稳重型玩家
-- `configs/witty.json` - 风趣幽默型玩家
+- `configs/default.json` - 默认平衡型玩家（OpenRouter + Claude）
+- `configs/aggressive.json` - 激进攻击型玩家（OpenRouter + GPT-4）
+- `configs/conservative.json` - 保守稳重型玩家（OpenRouter + Claude）
+- `configs/witty.json` - 风趣幽默型玩家（OpenRouter + Claude）
+- `configs/deepseek.json` - 深度分析型玩家（DeepSeek）
 
 ### 快捷启动脚本
 
@@ -35,6 +36,7 @@ pnpm dev:player:default      # 使用默认配置
 pnpm dev:player:aggressive   # 激进型玩家
 pnpm dev:player:conservative # 保守型玩家  
 pnpm dev:player:witty        # 幽默型玩家
+pnpm dev:player --config=configs/deepseek.json  # DeepSeek 玩家
 ```
 
 ## 配置文件结构
@@ -75,10 +77,11 @@ pnpm dev:player:witty        # 幽默型玩家
 
 - `model` (string): AI模型名称
   - OpenRouter: `anthropic/claude-3-haiku`, `anthropic/claude-3.5-sonnet`, `openai/gpt-4`等
-  - OpenAI: `gpt-3.5-turbo`, `gpt-4`等
+  - OpenAI: `gpt-3.5-turbo`, `gpt-4`, `gpt-4o`等
+  - DeepSeek: `deepseek-chat`, `deepseek-coder`等
 - `maxTokens` (number): 单次生成最大token数，范围10-2000
 - `temperature` (number): 创造性参数，范围0-2，越高越有创意
-- `provider` (string): AI提供商，"openrouter"或"openai"
+- `provider` (string): AI提供商，支持 "openrouter", "openai", 或 "deepseek"
 - `apiKey` (string, 可选): API密钥，通常通过环境变量设置
 
 ### 游戏配置 (game)
@@ -105,11 +108,12 @@ pnpm dev:player:witty        # 幽默型玩家
 
 ```bash
 # AI配置
-export AI_MODEL="openai/gpt-4"
+export AI_MODEL="deepseek-chat"  # 或 "openai/gpt-4"
 export AI_MAX_TOKENS=200
 export AI_TEMPERATURE=0.9
-export OPENROUTER_API_KEY="your_key"
-export OPENAI_API_KEY="your_key"
+export OPENROUTER_API_KEY="your_openrouter_key"
+export OPENAI_API_KEY="your_openai_key"
+export DEEPSEEK_API_KEY="t"
 
 # 服务器配置
 export PORT=3005

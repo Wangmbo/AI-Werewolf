@@ -22,7 +22,7 @@ import type {
 
 // 解析命令行参数
 const args = process.argv.slice(2);
-const configArg = args.find(arg => arg.startsWith('--config='));
+const configArg = process.env.CONFIG_PATH ?? args.find(arg => arg.startsWith('--config='));
 const configPath = configArg ? configArg.split('=')[1] : undefined;
 
 // 加载配置

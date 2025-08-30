@@ -88,8 +88,18 @@ export class PlayerServer {
   }
 
   async useAbility(context: PlayerContext | WitchContext | SeerContext): Promise<any> {
-    if (!this.role || !this.config.ai.apiKey) {
-      throw new Error("我没有特殊能力可以使用。");
+    // 检查前置条件
+    if (!this.role) {
+      throw new Error("❌ 游戏角色未设置，请先调用 startGame() 方法");
+    }
+    
+    if (!this.config.ai.apiKey) {
+      throw new Error("❌ AI API密钥未配置，请检查环境变量或配置文件");
+    }
+    
+    // 检查角色是否有特殊能力
+    if (this.role === Role.VILLAGER) {
+      throw new Error("❌ 平民没有特殊能力");
     }
 
     return await this.generateAbilityUse(context);
@@ -154,10 +164,19 @@ export class PlayerServer {
     const telemetryConfig = this.getTelemetryConfig(functionId, context);
     
     try {
+      // 针对 DeepSeek 的特殊处理：确保 prompt 包含 JSON 关键词
+      let enhancedPrompt = prompt;
+      if (this.config.ai.provider === 'deepseek') {
+        // 如果 prompt 中没有包含 json 关键词，则添加
+        if (!prompt.toLowerCase().includes('json')) {
+          enhancedPrompt = prompt + '\n\n**请以标准JSON格式返回响应。**';
+        }
+      }
+      
       const result = await generateObject({
         model: this.getModel(),
         schema: schema,
-        prompt: prompt,
+        prompt: enhancedPrompt,
         maxOutputTokens: maxOutputTokens || this.config.ai.maxTokens,
         temperature: temperature ?? this.config.ai.temperature,
         // 使用 experimental_telemetry（只有在有配置时才传递）
@@ -262,17 +281,44 @@ export class PlayerServer {
 
   // 辅助方法
   private getModel() {
-    const openrouter = createOpenAICompatible({
-      name: 'openrouter',
-      baseURL: 'https://openrouter.ai/api/v1',
-      apiKey: this.config.ai.apiKey || process.env.OPENROUTER_API_KEY,
-      headers: {
-        'HTTP-Referer': 'https://mojo.monad.xyz',
-        'X-Title': 'AI Werewolf Game',
-      },
-    });
-    
-    return openrouter.chatModel(this.config.ai.model);
+    switch (this.config.ai.provider) {
+      case 'openrouter': {
+        const openrouter = createOpenAICompatible({
+          name: 'openrouter',
+          baseURL: 'https://openrouter.ai/api/v1',
+          apiKey: this.config.ai.apiKey || process.env.OPENROUTER_API_KEY,
+          headers: {
+            'HTTP-Referer': 'https://mojo.monad.xyz',
+            'X-Title': 'AI Werewolf Game',
+          },
+        });
+        return openrouter.chatModel(this.config.ai.model);
+      }
+      
+      case 'openai': {
+        const openai = createOpenAICompatible({
+          name: 'openai',
+          baseURL: 'https://api.openai.com/v1',
+          apiKey: this.config.ai.apiKey || process.env.OPENAI_API_KEY,
+        });
+        return openai.chatModel(this.config.ai.model);
+      }
+      
+      case 'deepseek': {
+        const deepseek = createOpenAICompatible({
+          name: 'deepseek',
+          baseURL: 'https://api.deepseek.com/v1',
+          apiKey: this.config.ai.apiKey || process.env.DEEPSEEK_API_KEY,
+          headers: {
+            'User-Agent': 'AI-Werewolf-Game/1.0',
+          },
+        });
+        return deepseek.chatModel(this.config.ai.model);
+      }
+      
+      default:
+        throw new Error(`Unsupported AI provider: ${this.config.ai.provider}`);
+    }
   }
 
   private getTelemetryConfig(

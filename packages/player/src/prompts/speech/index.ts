@@ -9,10 +9,10 @@ function getSpeechFormatInstruction(role: Role): string {
   
   switch (role) {
     case Role.VILLAGER:
-      roleSpecificTip = '要符合村民身份，分析逻辑，不要暴露太多信息。';
+      roleSpecificTip = '要符合村民身份，分析逻辑，不要暴露太多信息。但是遇到大概率是狼人的玩家，要大胆质疑，不要害怕。';
       break;
     case Role.WEREWOLF:
-      roleSpecificTip = '要伪装成好人，避免暴露狼人身份，可以适当误导其他玩家。';
+      roleSpecificTip = '要伪装成好人，尽量少发言，避免暴露狼人身份，如果场上人越来越少，可以适当误导诬陷其他玩家，但是要有逻辑。';
       break;
     case Role.SEER:
       roleSpecificTip = '要合理传达查验信息，但要避免过早暴露身份被狼人针对。';
@@ -26,7 +26,7 @@ function getSpeechFormatInstruction(role: Role): string {
   
   return `
 请返回JSON格式，包含以下字段：
-- speech: 你的发言内容（30-80字的自然对话，其他玩家都能听到）
+- speech: 你的发言内容（30-90字的自然对话，其他玩家都能听到）
 
 注意：speech字段是你的公开发言，${roleSpecificTip}`;
 }
@@ -63,6 +63,7 @@ ${customContent}
 1. 分析玩家发言逻辑，指出矛盾点
 2. 独立思考，不盲从他人
 3. 保护可能的神职角色
+4. 不要重复别人说过的话, 不要说废话, 没话说说简单一点
 
 当前局势分析：
 - 可疑玩家: ${suspiciousInfo}
@@ -94,7 +95,7 @@ export function getWerewolfSpeech(playerServer: PlayerServer, context: PlayerCon
   
   const customContent = params.customContent || '';
   
-  return `你是${params.playerId}号玩家，狼人杀游戏中的狼人角色，性格特点：狡猾、善于伪装。当前游戏状态：
+  return `你是${params.playerId}号玩家，狼人杀游戏中的狼人角色，性格特点：狡猾、善于伪装、浑水摸鱼、不轻易暴露。当前游戏状态：
 - 存活玩家: [${playerList}]
 - 当前发言轮次: 第${context.round}轮
 - 历史发言摘要: ${speechSummary}
@@ -104,10 +105,12 @@ ${customContent}
 
 作为狼人，你的发言策略：
 1. 伪装成好人，避免暴露
-2. 引导好人投票错误目标
+2. 引导好人投票错误目标, 引起内讧
 3. 保护队友，必要时为队友辩护
 4. 制造混乱，转移注意力
 5. 考虑自爆策略（如必要）
+6. 不要重复别人说过的话, 不要说废话, 没话说就说简单一点
+7. 当你是狼人时, 被指明身份时, 不要承认, 结合场上实际情况说自己是神职或者村民, 倒打一耙
 
 当前局势分析：
 - 今晚被杀的玩家: ${killedInfo}
@@ -159,6 +162,7 @@ ${customContent}
 2. 清晰传达查验信息
 3. 分析玩家行为逻辑，指出可疑点
 4. 避免过早暴露导致被狼人针对
+5. 不要重复别人说过的话, 不要说废话, 没话说就说简单一点
 
 当前局势分析：
 - 可疑玩家: ${params.suspiciousPlayers?.join('、') || '根据查验结果确定'}
@@ -202,6 +206,7 @@ ${customContent}
 2. 暗示自己有重要信息，但不要直接暴露
 3. 引导好人投票正确目标
 4. 在必要时可以半报身份
+5. 不要重复别人说过的话, 不要说废话, 没话说就说简单一点
 
 当前局势分析：
 - 今晚被杀的玩家: ${killedInfo}（你${context.potionUsed?.heal ? '已救' : '未救'}）
